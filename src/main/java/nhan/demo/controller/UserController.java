@@ -53,7 +53,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseData<UserRequestDTO> getUser(@PathVariable int userId){
         System.out.println("Request get user id = " + userId);
-        return new ResponseData<>(HttpStatus.OK.value(),"user",new UserRequestDTO("Truong","Nhan","phone@gmail","0123465789",new Date(2024,03,3),List.of("a")));
+        return new ResponseData<>(HttpStatus.OK.value(),"user",new UserRequestDTO("Truong","Nhan","phone@gmail","0123465789"));
     }
 
     @GetMapping("/list")
@@ -61,7 +61,7 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size){
         System.out.println("Request get user list");
-        return new ResponseData<>(HttpStatus.OK.value(),"list user",List.of(new UserRequestDTO("Truong","Nhan","nahn@gmail","0123456789",new Date(2000,05,15),List.of("a")),
-                new UserRequestDTO("Truong1", "Nhan1","nhan@gmail","1234567890",new Date(2002,03,3),List.of("a"))));
+        return new ResponseData<>(HttpStatus.OK.value(),"list user",List.of(new UserRequestDTO("Truong","Nhan","nahn@gmail","0123456789"),
+                new UserRequestDTO("Truong1", "Nhan1","nhan@gmail","1234567890")));
     }
 }
