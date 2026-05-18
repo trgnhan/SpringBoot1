@@ -3,10 +3,10 @@ package nhan.demo.util;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum UserType {
-    @JsonProperty("ower")
+    //@JsonProperty("ower")
     OWER,
-    @JsonProperty("admin")
+    //@JsonProperty("admin")
     ADMIN,
-    @JsonProperty("user")
+    //@JsonProperty("user")
     USER
 }
