@@ -1,0 +1,555 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API document",
+    "description": "Mota API service",
+    "license": {
+      "name": "API License",
+      "url": "http://domain.vn/license"
+    },
+    "version": "v1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "server test"
+    }
+  ],
+  "paths": {
+    "/user/{userId}": {
+      "get": {
+        "tags": [
+          "User Controller"
+        ],
+        "summary": "Get user",
+        "description": "API get user",
+        "operationId": "getUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataUserRequestDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "User Controller"
+        ],
+        "summary": "Update user",
+        "description": "API update user",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User Controller"
+        ],
+        "summary": "Delete user",
+        "description": "API delete user",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "User Controller"
+        ],
+        "summary": "Change user",
+        "description": "API changed user",
+        "operationId": "changeStatus",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/": {
+      "post": {
+        "tags": [
+          "User Controller"
+        ],
+        "summary": "Add user",
+        "description": "API create new user",
+        "operationId": "addUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataInteger"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/list": {
+      "get": {
+        "tags": [
+          "User Controller"
+        ],
+        "summary": "Get list user per page",
+        "description": "Return user by pageNo and pageSize",
+        "operationId": "getUserList",
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10,
+              "minimum": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDataListUserRequestDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "path": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "apartmentNumber": {
+            "type": "string"
+          },
+          "floor": {
+            "type": "string"
+          },
+          "building": {
+            "type": "string"
+          },
+          "streetNumber": {
+            "type": "string"
+          },
+          "street": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "addressType": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UserRequestDTO": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "phone": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "none"
+            ]
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE",
+              "OTHER"
+            ]
+          },
+          "type": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "addresses",
+          "dateOfBirth",
+          "firstName",
+          "lastName",
+          "password",
+          "permissions",
+          "type",
+          "username"
+        ]
+      },
+      "ResponseDataObject": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {}
+        }
+      },
+      "ResponseDataInteger": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ResponseDataUserRequestDTO": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserRequestDTO"
+          }
+        }
+      },
+      "ResponseDataListUserRequestDTO": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserRequestDTO"
+            }
+          }
+        }
+      }
+    }
+  }
+}

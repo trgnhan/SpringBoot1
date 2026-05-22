@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +29,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping("/user")
 @Validated
 @Slf4j
+@Tag(name = "User Controller")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Add user", description = "API create new user")
     @PostMapping(value = "/")
 //    @RequestMapping(method = POST,path ="/", headers = "apiKey=v1.0")
     public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userDTO){
@@ -46,31 +49,35 @@ public class UserController {
         return new ResponseData<>(HttpStatus.CREATED.value(), Translator.toLocale("user.add.success"),1);
     }
 
-
+    @Operation(summary = "Update user", description = "API update user")
     @PutMapping("/{userId}")
     public ResponseData<?> updateUser(@Min(1) @PathVariable("userId") int id, @Valid @RequestBody UserRequestDTO userDTO){
         log.info("Request update userId = {} ", id);
         return new ResponseData<>(HttpStatus.ACCEPTED.value(), Translator.toLocale("user.update.success"));
     }
 
+    @Operation(summary = "Change user", description = "API changed user")
     @PatchMapping("/{userId}")
     public ResponseData<?> changeStatus(@PathVariable("userId") @Min(1) int userId,@RequestParam(value = "status",required = false) boolean status){
         log.info("Request change status userId = {}", userId);
         return new ResponseData<>(HttpStatus.ACCEPTED.value(),"User changed status");
     }
 
+    @Operation(summary = "Delete user", description = "API delete user")
     @DeleteMapping("/{userId}")
     public ResponseData<?> deleteUser(@Min(1) @PathVariable("userId") int userId){
         log.info("Request delete userId = {}", userId);
         return new ResponseData<>(HttpStatus.NO_CONTENT.value(),"User deleted");
     }
 
+    @Operation(summary = "Get user", description = "API get user")
     @GetMapping("/{userId}")
     public ResponseData<UserRequestDTO> getUser(@PathVariable("userId") int userId){
         log.info("Request get user id = {}" , userId);
         return new ResponseData<>(HttpStatus.OK.value(),"user",new UserRequestDTO("Truong","Nhan","phone@gmail","0123465789"));
     }
 
+    @Operation(summary = "Get list user per page", description = "Return user by pageNo and pageSize")
     @GetMapping("/list")
     public ResponseData<List<UserRequestDTO>> getUserList(
              @RequestParam(value = "pageNo",defaultValue = "0", required = false) int pageNo,
