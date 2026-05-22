@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+server:
+  port: 8082
+open:
+  api:
+    title: API document
+    version: v1.0.0
+    description: Mota API service
+    serverUrl: http://localhost:${server.port}
+    serverName: server prod

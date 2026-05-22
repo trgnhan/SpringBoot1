@@ -12,13 +12,16 @@ import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
 @Configuration
+@Profile("!prod")
 public class OpenAPIConfig {
 
     @Bean
+    @Profile("test")
     public OpenAPI openAPI(@Value("${open.api.title}") String title,
                            @Value("${open.api.version}") String version,
                            @Value("${open.api.description}") String description,
@@ -40,6 +43,7 @@ public class OpenAPIConfig {
     }
 
     @Bean
+    @Profile("dev")
     public GroupedOpenApi groupedOpenApi(){
         return GroupedOpenApi.builder()
                 .group("api-service-1")
