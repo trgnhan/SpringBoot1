@@ -1,0 +1,7 @@
+mvn clean package -P dev
+docker build -t api-image-sample .
+docker run -it -p 80:80 --name=api-container api-image-sample
+docker-compose up -d
+docker-compose up -d --build
+mvn clean install -P dev
+docker-compose logs -tf api-service

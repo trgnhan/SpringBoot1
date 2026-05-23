@@ -21,7 +21,6 @@ import java.util.List;
 public class OpenAPIConfig {
 
     @Bean
-    @Profile("test")
     public OpenAPI openAPI(@Value("${open.api.title}") String title,
                            @Value("${open.api.version}") String version,
                            @Value("${open.api.description}") String description,
@@ -43,7 +42,6 @@ public class OpenAPIConfig {
     }
 
     @Bean
-    @Profile("dev")
     public GroupedOpenApi groupedOpenApi(){
         return GroupedOpenApi.builder()
                 .group("api-service-1")
