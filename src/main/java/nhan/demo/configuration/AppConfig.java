@@ -43,7 +43,7 @@ public class AppConfig {
         config.setAllowedHeaders(List.of("*"));
         // neu muon chi co user thif la /user/**
         source.registerCorsConfiguration("/**", config);
-        FilterRegistrationBean bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
     }

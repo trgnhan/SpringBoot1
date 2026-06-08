@@ -2,6 +2,8 @@ package nhan.demo.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 import nhan.demo.util.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -12,6 +14,8 @@ import java.util.Set;
 
 import static nhan.demo.util.Gender.*;
 
+@Getter
+@Setter
 public class UserRequestDTO implements Serializable {
 
     @NotBlank(message = "firstName must be not blank")
@@ -30,10 +34,10 @@ public class UserRequestDTO implements Serializable {
     private String password;
 
     @NotEmpty(message = "addresses can not empty")
-    private Set<Address> addresses;
+    private Set<AddressDTO> addresses;
 //    @Pattern(regexp = "^\\d{10}$", message = "phone invalid format")
 
-    @PhoneNumber
+    @PhoneNumber(message = "phone invalid format")
     private String phone;
 
     @NotNull(message = "dateOfBirth must be not null")
@@ -62,162 +66,7 @@ public class UserRequestDTO implements Serializable {
         this.phone = phone;
     }
 
-    public static class Address {
-        private String apartmentNumber;
-        private String floor;
-        private String building;
-        private String streetNumber;
-        private String street;
-        private String city;
-        private String country;
-        private Integer addressType;
 
-        public String getApartmentNumber() {
-            return apartmentNumber;
-        }
 
-        public void setApartmentNumber(String apartmentNumber) {
-            this.apartmentNumber = apartmentNumber;
-        }
 
-        public String getFloor() {
-            return floor;
-        }
-
-        public void setFloor(String floor) {
-            this.floor = floor;
-        }
-
-        public String getBuilding() {
-            return building;
-        }
-
-        public void setBuilding(String building) {
-            this.building = building;
-        }
-
-        public String getStreetNumber() {
-            return streetNumber;
-        }
-
-        public void setStreetNumber(String streetNumber) {
-            this.streetNumber = streetNumber;
-        }
-
-        public String getStreet() {
-            return street;
-        }
-
-        public void setStreet(String street) {
-            this.street = street;
-        }
-
-        public String getCity() {
-            return city;
-        }
-
-        public void setCity(String city) {
-            this.city = city;
-        }
-
-        public String getCountry() {
-            return country;
-        }
-
-        public void setCountry(String country) {
-            this.country = country;
-        }
-
-        public Integer getAddressType() {
-            return addressType;
-        }
-
-        public void setAddressType(Integer addressType) {
-            this.addressType = addressType;
-        }
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public Date getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Set<Address> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(Set<Address> addresses) {
-        this.addresses = addresses;
-    }
-
-    public List<String> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(List<String> permissions) {
-        this.permissions = permissions;
-    }
-
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public String getType() {
-        return type;
-    }
 }

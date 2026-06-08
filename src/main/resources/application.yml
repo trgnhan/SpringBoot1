@@ -4,4 +4,4 @@ spring:
   application:
     name: demo
   profiles:
-    active: @spring.profiles.active@
+    active: "@spring.profiles.active@"
