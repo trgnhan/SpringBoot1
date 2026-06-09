@@ -1,6 +1,7 @@
 package nhan.demo.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,13 +15,14 @@ import java.util.Date;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     //400
     @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(Exception e, WebRequest request) {
-        System.out.println("========================= handleValidationException");
+        log.error("========================= handleValidationException",e);
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(new Date());
         errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -48,7 +50,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentTypeMismatchException.class})
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     public ErrorResponse handleInternalServerErrorException(Exception e, WebRequest request) {
-        System.out.println("========================= handleInternalServerErrorException");
+        log.error("========================= handleInternalServerErrorException",e);
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(new Date());
         errorResponse.setStatus(INTERNAL_SERVER_ERROR.value());

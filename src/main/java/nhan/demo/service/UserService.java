@@ -1,9 +1,9 @@
 package nhan.demo.service;
 
 import nhan.demo.dto.request.UserRequestDTO;
-import nhan.demo.dto.response.UserDetailReponse;
-
-import java.util.List;
+import nhan.demo.dto.response.PageResponse;
+import nhan.demo.dto.response.UserDetailResponse;
+import nhan.demo.util.UserStatus;
 
 public interface UserService {
 
@@ -11,11 +11,14 @@ public interface UserService {
 
     void updateUser(long userId, UserRequestDTO request);
 
-    void changeStatus(long userId, UserRequestDTO request);
+    void changeStatus(long userId, UserStatus status);
 
     void deleteUser(long userId);
 
-    UserDetailReponse getUser(long userId);
+    UserDetailResponse getUser(long userId);
 
-    List<UserDetailReponse> getAllUsers(int pageNo, int pageSize);
+    PageResponse<?> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy);
+
+    PageResponse<?> getAllUsersWithSortByMultipleColumns(int pageNo, int pageSize, String... sorts);
+
 }

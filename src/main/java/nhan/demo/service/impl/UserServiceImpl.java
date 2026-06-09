@@ -3,21 +3,27 @@ package nhan.demo.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nhan.demo.dto.request.AddressDTO;
 import nhan.demo.dto.request.UserRequestDTO;
-import nhan.demo.dto.response.UserDetailReponse;
+import nhan.demo.dto.response.PageResponse;
+import nhan.demo.dto.response.UserDetailResponse;
 import nhan.demo.exception.ResourceNotFoundException;
 import nhan.demo.model.Address;
 import nhan.demo.model.User;
 import nhan.demo.repository.UserRepository;
 import nhan.demo.service.UserService;
+import nhan.demo.util.UserStatus;
 import nhan.demo.util.UserType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -86,10 +92,10 @@ public class UserServiceImpl implements UserService {
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
 
-        if(StringUtils.hasLength(request.getUsername())) {
+        if (StringUtils.hasLength(request.getUsername())) {
             user.setUsername(request.getUsername());
         }
-        if(StringUtils.hasLength(request.getPhone())) {
+        if (StringUtils.hasLength(request.getPhone())) {
             //check
             //check trung sdt da co trong ht chua
             // ....
@@ -104,9 +110,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeStatus(long userId, UserRequestDTO request) {
+    public void changeStatus(long userId, UserStatus status) {
         User user = getUserById(userId);
-        user.setStatus(request.getStatus());
+        user.setStatus(status);
         userRepository.save(user);
         log.info("User has changed successfully, userId={}", user.getId());
     }
@@ -118,9 +124,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDetailReponse getUser(long userId) {
+    public UserDetailResponse getUser(long userId) {
         User user = getUserById(userId);
-        return UserDetailReponse.builder()
+        return UserDetailResponse.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
@@ -130,11 +136,97 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDetailReponse> getAllUsers(int pageNo, int pageSize) {
-        return List.of();
+    public PageResponse<?> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy) {
+        int page=pageNo;
+        if(pageNo>0){
+            pageNo=pageNo-1;
+        }
+
+        // lam trong may cai filter sap xep a->z or z->a ....
+        List<Sort.Order> sorts = new ArrayList<>();
+
+
+        // neu co gia tri
+        if(StringUtils.hasLength(sortBy)){
+            // firstName: asc|desc
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
+            Matcher matcher = pattern.matcher(sortBy);
+            if(matcher.find()){
+                if(matcher.group(3).equalsIgnoreCase("asc")){
+                    sorts.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
+                }else if (matcher.group(3).equalsIgnoreCase("desc")){
+                    sorts.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+                }
+            }
+
+        }
+
+
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by(sorts));
+
+        Page<User> users = userRepository.findAll(pageable);
+        List<UserDetailResponse> response = users.stream().map(user -> UserDetailResponse.builder()
+                .id((long) user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .build()).toList();
+        return PageResponse.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPages(users.getTotalPages())
+                .items(response)
+                .build();
+    }
+
+
+    @Override
+    public PageResponse<?> getAllUsersWithSortByMultipleColumns(int pageNo, int pageSize, String... sorts) {
+        int page = pageNo;
+        if(pageNo>0){
+            pageNo=pageNo-1;
+        }
+
+        // lam trong may cai filter sap xep a->z or z->a ....
+        List<Sort.Order> orders = new ArrayList<>();
+        // vi no la chuoi nen phai tach ra tiep
+        // neu co gia tri
+        for (String s : sorts) {
+            // firstName: asc|desc
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
+            Matcher matcher = pattern.matcher(s);
+            if(matcher.find()){
+                if(matcher.group(3).equalsIgnoreCase("asc")){
+                    orders.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
+                }else if (matcher.group(3).equalsIgnoreCase("desc")){
+                    orders.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+                }
+            }
+        }
+
+
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by(orders));
+
+        Page<User> users = userRepository.findAll(pageable);
+        List<UserDetailResponse> response = users.stream().map(user -> UserDetailResponse.builder()
+                .id((long) user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .build()).toList();
+        return PageResponse.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPages(users.getTotalPages())
+                .items(response)
+                .build();
+
+
     }
 
     private User getUserById(long userId) {
-        return userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }
