@@ -9,6 +9,7 @@ import nhan.demo.dto.response.UserDetailResponse;
 import nhan.demo.exception.ResourceNotFoundException;
 import nhan.demo.model.Address;
 import nhan.demo.model.User;
+import nhan.demo.repository.SearchRepository;
 import nhan.demo.repository.UserRepository;
 import nhan.demo.service.UserService;
 import nhan.demo.util.UserStatus;
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    private final SearchRepository searchRepository;
 
     @Override
     public long saveUser(UserRequestDTO request) {
@@ -224,6 +226,13 @@ public class UserServiceImpl implements UserService {
                 .build();
 
 
+    }
+
+    @Override
+    public PageResponse<?> getAllUsersWithSortByColumnsAndSearch(int pageNo, int pageSize, String search, String sorts) {
+
+
+        return searchRepository.getAllUsersWithSortByColumnsAndSearch(pageNo, pageSize, search, sorts);
     }
 
     private User getUserById(long userId) {

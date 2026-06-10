@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nhan.demo.configuration.Translator;
 import nhan.demo.dto.request.UserRequestDTO;
-import nhan.demo.dto.response.PageResponse;
 import nhan.demo.dto.response.ResponseData;
 import nhan.demo.dto.response.ResponseError;
 import nhan.demo.dto.response.UserDetailResponse;
@@ -18,8 +17,6 @@ import nhan.demo.util.UserStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -118,5 +115,16 @@ public class UserController {
             @RequestParam(required = false) String... sorts){
         log.info("Request get all user list with sort by multiple columns");
         return new ResponseData<>(HttpStatus.OK.value(),"list user",userService.getAllUsersWithSortByMultipleColumns(pageNo, pageSize,sorts));
+    }
+
+    @Operation(summary = "Get list user per page with sort by columns and search", description = "Return user by pageNo, pageSize and sort by multiple columns and search")
+    @GetMapping("/list-with-sort-by-columns-and-search")
+    public ResponseData<?> getAllUsersWithSearch(
+            @RequestParam(value = "pageNo",defaultValue = "0", required = false) int pageNo,
+            @Min(10) @RequestParam(value = "pageSize", defaultValue = "20", required = false) int pageSize,
+            @RequestParam(defaultValue = "20", required = false) String search,
+            @RequestParam(required = false) String sorts){
+        log.info("Request get all user list with sort by columns and search");
+        return new ResponseData<>(HttpStatus.OK.value(),"list user",userService.getAllUsersWithSortByColumnsAndSearch(pageNo, pageSize,search,sorts));
     }
 }
