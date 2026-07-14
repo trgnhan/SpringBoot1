@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(request.getPassword());
         user.setStatus(request.getStatus());
         user.setType(UserType.valueOf(request.getType().toUpperCase()));
-        user.setAddresses(user.getAddresses());
+        user.setAddress(user.getAddress());
         userRepository.save(user);
         log.info("User has updated successfully, userId={}", userId);
     }
@@ -233,6 +233,12 @@ public class UserServiceImpl implements UserService {
 
 
         return searchRepository.getAllUsersWithSortByColumnsAndSearch(pageNo, pageSize, search, sorts);
+    }
+
+    @Override
+    public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,String... search) {
+
+        return searchRepository.advanceSearchByCriteria(pageNo, pageSize,sortBy , address,search);
     }
 
     private User getUserById(long userId) {

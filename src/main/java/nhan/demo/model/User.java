@@ -1,13 +1,12 @@
 package nhan.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import nhan.demo.util.Gender;
 import nhan.demo.util.UserStatus;
 import nhan.demo.util.UserType;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.util.Date;
@@ -64,17 +63,18 @@ public class User extends AbstractEntity {
     @Column(name = "status")
     private UserStatus status;
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
     @Builder.Default
-    private Set<Address> addresses = new HashSet<>();
+    private Set<Address> address = new HashSet<>();
 
-    public void saveAddress(Address address) {
-        if (address != null) {
-            if (addresses == null) {
-                addresses = new HashSet<>();
+    public void saveAddress(Address addresses) {
+        if (addresses != null) {
+            if (address == null) {
+                address = new HashSet<>();
             }
-            addresses.add(address);
-            address.setUser(this);
+            address.add(addresses);
+            addresses.setUser(this);
         }
     }
 
