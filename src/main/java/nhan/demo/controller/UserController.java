@@ -14,6 +14,7 @@ import nhan.demo.dto.response.UserDetailResponse;
 import nhan.demo.exception.ResourceNotFoundException;
 import nhan.demo.service.UserService;
 import nhan.demo.util.UserStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -128,7 +129,7 @@ public class UserController {
         return new ResponseData<>(HttpStatus.OK.value(),"list user",userService.getAllUsersWithSortByColumnsAndSearch(pageNo, pageSize,search,sorts));
     }
 
-    @Operation(summary = "Get list user per page with sort by columns and search by criteria", description = "Return user by pageNo, pageSize and sort by multiple columns and search by criteria")
+    @Operation(summary = "Advance search query by criteria", description = "Return user by pageNo, pageSize and sort by multiple columns and search by criteria")
     @GetMapping("/advance-search-by-criteria")
     public ResponseData<?> advanceSearchByCriteria(
             @RequestParam(value = "pageNo",defaultValue = "0", required = false) int pageNo,
@@ -138,6 +139,16 @@ public class UserController {
             @RequestParam(required = false) String... search){
         log.info("Request get all user list with sort by columns and search by criteria");
         return new ResponseData<>(HttpStatus.OK.value(),"list user",userService.advanceSearchByCriteria(pageNo, pageSize,sortBy,address,search));
+    }
+
+    @Operation(summary = "Advance search query by Specification", description = "Send a request via this API to get user list by page and search with user and address by specification")
+    @GetMapping("/advance-search-by-specification")
+    public ResponseData<?> advanceSearchByspecification(
+            Pageable pageable,
+            @RequestParam(required = false) String[] user,
+            @RequestParam(required = false) String[] address){
+        log.info("Request get all user list with sort by columns and search by Specification");
+        return new ResponseData<>(HttpStatus.OK.value(),"list user",userService.advanceSearchBySpecification(pageable,user,address));
     }
 
 }

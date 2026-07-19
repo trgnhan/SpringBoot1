@@ -5,6 +5,7 @@ import nhan.demo.dto.request.UserRequestDTO;
 import nhan.demo.dto.response.PageResponse;
 import nhan.demo.dto.response.UserDetailResponse;
 import nhan.demo.util.UserStatus;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
 
@@ -25,4 +26,6 @@ public interface UserService {
     PageResponse<?> getAllUsersWithSortByColumnsAndSearch(int pageNo, int pageSize, String search, String sorts);
 
     PageResponse<?> advanceSearchByCriteria(int pageNo, @Min(10) int pageSize, String sortBy, String address,String... search);
+
+    PageResponse<?> advanceSearchBySpecification(Pageable pageable, String[] user, String[] address);
 }

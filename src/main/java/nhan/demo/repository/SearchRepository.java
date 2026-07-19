@@ -4,14 +4,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nhan.demo.dto.response.PageResponse;
 import nhan.demo.model.Address;
 import nhan.demo.model.User;
 import nhan.demo.repository.criteria.SearchCriteria;
 import nhan.demo.repository.criteria.UserSearchCriteriaQueryConsumer;
+import nhan.demo.repository.specification.SpecSearchCriteria;
+import nhan.demo.util.Gender;
 import org.springframework.data.domain.*;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -183,5 +185,130 @@ public class SearchRepository {
         }
 
         return entityManager.createQuery(query).setFirstResult(pageNo).setMaxResults(pageSize).getResultList();
+    }
+    public PageResponse getUsersJoinedAddress(Pageable pageable, String[] user, String[] address) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
+        Root<User> userRoot = query.from(User.class);
+
+        Join<Address,User> addressJoin = userRoot.join("address");
+
+        //build query
+        List<Predicate> userPre = new ArrayList<>();
+        List<Predicate> addressPre = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile("(\\w+?)([<:>~!])(.*)(\\p{Punct}?)(\\p{Punct}?)");
+        for (String u : user) {
+            Matcher matcher = pattern.matcher(u);
+            if(matcher.find()){
+                SpecSearchCriteria criteria = new SpecSearchCriteria(matcher.group(1), matcher.group(2),matcher.group(3),matcher.group(4),matcher.group(5));
+                Predicate predicate = toUserPredicate(userRoot, criteriaBuilder ,criteria);
+                if(userPre!=null) userPre.add(predicate);
+            }
+        }
+        for (String a : address) {
+            Matcher matcher = pattern.matcher(a);
+            if(matcher.find()){
+                SpecSearchCriteria criteria = new SpecSearchCriteria(matcher.group(1), matcher.group(2),matcher.group(3),matcher.group(4),matcher.group(5));
+                Predicate predicate = toAddressPredicate(addressJoin, criteriaBuilder ,criteria);
+                if(addressPre!=null) addressPre.add(predicate);
+            }
+        }
+
+        Predicate userPredicate = criteriaBuilder.or(userPre.toArray(new Predicate[userPre.size()]));
+        Predicate addressPredicate = criteriaBuilder.or(addressPre.toArray(new Predicate[addressPre.size()]));
+        Predicate finalPredicate = criteriaBuilder.and(userPredicate, addressPredicate);
+
+        query.where(finalPredicate);
+        List<User> resultList = entityManager.createQuery(query)
+                .setFirstResult(pageable.getPageNumber())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+
+        long count = count(user,address);
+
+
+        return PageResponse.builder()
+                .pageNo(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalPages(count)
+                .items(resultList)
+                .build();
+    }
+
+    private long count(String[] user, String[] address ) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+        Root<User> userRoot = query.from(User.class);
+
+        Join<Address,User> addressJoin = userRoot.join("address");
+
+        //build query
+        List<Predicate> userPre = new ArrayList<>();
+        List<Predicate> addressPre = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile("(\\w+?)([<:>~!])(.*)(\\p{Punct}?)(\\p{Punct}?)");
+        for (String u : user) {
+            Matcher matcher = pattern.matcher(u);
+            if(matcher.find()){
+                SpecSearchCriteria criteria = new SpecSearchCriteria(matcher.group(1), matcher.group(2),matcher.group(3),matcher.group(4),matcher.group(5));
+                Predicate predicate = toUserPredicate(userRoot, criteriaBuilder ,criteria);
+                if(userPre!=null) userPre.add(predicate);
+            }
+        }
+        for (String a : address) {
+            Matcher matcher = pattern.matcher(a);
+            if(matcher.find()){
+                SpecSearchCriteria criteria = new SpecSearchCriteria(matcher.group(1), matcher.group(2),matcher.group(3),matcher.group(4),matcher.group(5));
+                Predicate predicate = toAddressPredicate(addressJoin, criteriaBuilder ,criteria);
+                if(addressPre!=null) addressPre.add(predicate);
+            }
+        }
+
+        Predicate userPredicate = criteriaBuilder.or(userPre.toArray(new Predicate[userPre.size()]));
+        Predicate addressPredicate = criteriaBuilder.or(addressPre.toArray(new Predicate[addressPre.size()]));
+        Predicate finalPredicate = criteriaBuilder.and(userPredicate, addressPredicate);
+
+        query.select(criteriaBuilder.count(userRoot));
+        query.where(finalPredicate);
+        return entityManager.createQuery(query).getSingleResult();
+
+    }
+
+    private Predicate toUserPredicate(@NonNull final Root<User> root, @NonNull final CriteriaBuilder criteriaBuilder, SpecSearchCriteria specSearchCriteria) {
+        Object value = specSearchCriteria.getValue();
+        Class<?> javaType = root.get(specSearchCriteria.getKeyword()).getJavaType();
+
+        if (javaType.isEnum() && value instanceof String) {
+            value = Enum.valueOf((Class<Enum>) javaType, (String) value);
+        }
+        return switch (specSearchCriteria.getOperation()){
+            case EQUALITY -> criteriaBuilder.equal(root.get(specSearchCriteria.getKeyword()), value);
+            case NEGATION -> criteriaBuilder.notEqual(root.get(specSearchCriteria.getKeyword()), value);
+            case GREATER_THAN -> criteriaBuilder.greaterThan(root.get(specSearchCriteria.getKeyword()), specSearchCriteria.getValue().toString());
+            case LESS_THAN -> criteriaBuilder.lessThan(root.get(specSearchCriteria.getKeyword()), specSearchCriteria.getValue().toString());
+            case LIKE -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()),"%"+ specSearchCriteria.getValue().toString()+"%");
+            case STARTS_WITH -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()), specSearchCriteria.getValue().toString()+"%");
+            case ENDS_WITH -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()), "%"+specSearchCriteria.getValue().toString());
+            case CONTAINS -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()), "%"+specSearchCriteria.getValue().toString()+"%");
+        };
+    }
+    private Predicate toAddressPredicate(@NonNull final Join<Address,User> root, @NonNull final CriteriaBuilder criteriaBuilder, SpecSearchCriteria specSearchCriteria) {
+        Object value = specSearchCriteria.getValue();
+        Class<?> javaType = root.get(specSearchCriteria.getKeyword()).getJavaType();
+
+        if (javaType.isEnum() && value instanceof String) {
+            value = Enum.valueOf((Class<Enum>) javaType, (String) value);
+        }
+        return switch (specSearchCriteria.getOperation()){
+            case EQUALITY -> criteriaBuilder.equal(root.get(specSearchCriteria.getKeyword()), value);
+            case NEGATION -> criteriaBuilder.notEqual(root.get(specSearchCriteria.getKeyword()), value);
+            case GREATER_THAN -> criteriaBuilder.greaterThan(root.get(specSearchCriteria.getKeyword()), specSearchCriteria.getValue().toString());
+            case LESS_THAN -> criteriaBuilder.lessThan(root.get(specSearchCriteria.getKeyword()), specSearchCriteria.getValue().toString());
+            case LIKE -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()),"%"+ specSearchCriteria.getValue().toString()+"%");
+            case STARTS_WITH -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()), specSearchCriteria.getValue().toString()+"%");
+            case ENDS_WITH -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()), "%"+specSearchCriteria.getValue().toString());
+            case CONTAINS -> criteriaBuilder.like(root.get(specSearchCriteria.getKeyword()), "%"+specSearchCriteria.getValue().toString()+"%");
+        };
     }
 }

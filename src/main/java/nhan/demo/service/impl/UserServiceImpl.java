@@ -1,6 +1,11 @@
 package nhan.demo.service.impl;
 
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nhan.demo.dto.request.UserRequestDTO;
@@ -11,13 +16,18 @@ import nhan.demo.model.Address;
 import nhan.demo.model.User;
 import nhan.demo.repository.SearchRepository;
 import nhan.demo.repository.UserRepository;
+import nhan.demo.repository.specification.SpecSearchCriteria;
+import nhan.demo.repository.specification.UserSpec;
+import nhan.demo.repository.specification.UserSpecificationBuilder;
 import nhan.demo.service.UserService;
+import nhan.demo.util.Gender;
 import nhan.demo.util.UserStatus;
 import nhan.demo.util.UserType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static nhan.demo.repository.specification.SearchOperation.*;
 
 @Service
 @Slf4j
@@ -239,6 +251,56 @@ public class UserServiceImpl implements UserService {
     public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,String... search) {
 
         return searchRepository.advanceSearchByCriteria(pageNo, pageSize,sortBy , address,search);
+    }
+
+    @Override
+    public PageResponse<?> advanceSearchBySpecification(Pageable pageable, String[] user, String[] address) {
+
+        Page<User> users =null;
+        List<User> list = new ArrayList<>();
+        if (user!=null && address!=null){
+            //tim kiem tren ca bang user va address -> join table
+            return searchRepository.getUsersJoinedAddress(pageable,user,address);
+
+
+
+        }else if(user!=null && address==null){
+            //tim kiem tren bang user
+
+
+//            Specification<User> spec = UserSpec.hasFirstName("t");
+//            Specification<User> genderSpec = UserSpec.notEqualGender(Gender.FEMALE);
+//            Specification<User> finalSpec = spec.and(genderSpec);
+
+            UserSpecificationBuilder builder = new UserSpecificationBuilder();
+
+
+            for (String s : user){
+                Pattern pattern = Pattern.compile("(\\w+?)([:<>~!])(.*)(\\p{Punct}?)(.*)(\\p{Punct}?)");
+                Matcher matcher = pattern.matcher(s);
+                if(matcher.find()){
+                    builder.with(matcher.group(1),matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5));
+                }
+            }
+            list = userRepository.findAll(builder.build());
+            users =  userRepository.findAll(pageable);
+            return PageResponse.builder()
+                    .pageNo(pageable.getPageNumber())
+                    .pageSize(pageable.getPageSize())
+                    .totalPages(users.getTotalPages())
+                    .items(list)
+                    .build();
+        }
+
+            users =  userRepository.findAll(pageable);
+
+
+        return PageResponse.builder()
+                .pageNo(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalPages(users.getTotalPages())
+                .items(users.stream().toList())
+                .build();
     }
 
     private User getUserById(long userId) {
