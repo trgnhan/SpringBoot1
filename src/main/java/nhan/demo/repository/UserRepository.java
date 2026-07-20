@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<User,Long>, JpaSpecificati
 
     // -- Or --
     // ben duoi se giong ben tren -> @Query(value = "select * from User u where u.firstName=:name or u.lastName=:name")
-    List<User> findByFirstNameOrLastName(String name);
+    List<User> findByFirstNameOrLastName(String firstName, String lastName);
 
     // -- Is, Equals --
     // @Query(value = "select * from User u where u.firstName=:name")
