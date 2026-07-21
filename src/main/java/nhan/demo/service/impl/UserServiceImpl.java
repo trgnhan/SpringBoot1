@@ -1,6 +1,7 @@
 package nhan.demo.service.impl;
 
 
+import jakarta.mail.MessagingException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -19,6 +20,7 @@ import nhan.demo.repository.UserRepository;
 import nhan.demo.repository.specification.SpecSearchCriteria;
 import nhan.demo.repository.specification.UserSpec;
 import nhan.demo.repository.specification.UserSpecificationBuilder;
+import nhan.demo.service.MailService;
 import nhan.demo.service.UserService;
 import nhan.demo.util.Gender;
 import nhan.demo.util.UserStatus;
@@ -31,6 +33,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -47,8 +50,10 @@ public class UserServiceImpl implements UserService {
 
     private final SearchRepository searchRepository;
 
+    private final MailService mailService;
+
     @Override
-    public long saveUser(UserRequestDTO request) {
+    public long saveUser(UserRequestDTO request) throws MessagingException, UnsupportedEncodingException {
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -74,7 +79,13 @@ public class UserServiceImpl implements UserService {
                         .build()));
         userRepository.save(user);
 
+        if (user.getId()!=null) {
+            //send email
+            mailService.sendConfirmLink(user.getEmail(),user.getId(),"secretCode");
+        }
+
         log.info("User has added successfully, userId={}", user.getId());
+
 
         return user.getId();
     }
@@ -141,6 +152,7 @@ public class UserServiceImpl implements UserService {
     public UserDetailResponse getUser(long userId) {
         User user = getUserById(userId);
         return UserDetailResponse.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
@@ -301,6 +313,11 @@ public class UserServiceImpl implements UserService {
                 .totalPages(users.getTotalPages())
                 .items(users.stream().toList())
                 .build();
+    }
+
+    @Override
+    public void confirmUser(int userId, String secretCode) {
+        log.info("Confirmed!");
     }
 
     private User getUserById(long userId) {

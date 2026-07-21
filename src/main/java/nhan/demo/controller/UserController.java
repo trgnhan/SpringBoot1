@@ -2,6 +2,7 @@ package nhan.demo.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/user")
@@ -57,6 +60,24 @@ public class UserController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(),"Update user failed");
         }
 
+    }
+
+
+    @GetMapping("/confirm/{userId}")
+    public ResponseData<?> confirmUser(@PathVariable("userId") @Min(1) int userId, @RequestParam String secretCode, HttpServletResponse servletResponse) throws IOException {
+        log.info("Confirm userId = {}, secretCode = {}", userId, secretCode);
+        try{
+            userService.confirmUser(userId,secretCode);
+            return new ResponseData<>(HttpStatus.ACCEPTED.value(),"User confirmed!");
+        }catch(Exception e){
+            log.error("errorMessage={}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(),"Confirmation was failure");
+        }
+        finally {
+            // TODO -> direct to login page
+            servletResponse.sendRedirect("https://google.com"); // TODO cho nay dien thong tin trang web tra ve khi confirm trong mail
+            // TODO sau khi co fe thi cho nay truyen ve trang login de nguoi dung dang nhap
+        }
     }
 
     @Operation(summary = "Change user", description = "API changed user")
